@@ -1,0 +1,13 @@
+services:
+  - type: worker
+    name: forex-rl-agent
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python alpaca_trading.py
+    envVars:
+      - key: APCA_API_KEY_ID
+        sync: false
+      - key: APCA_API_SECRET_KEY
+        sync: false
+      - key: APCA_API_BASE_URL
+        value: https://paper-api.alpaca.markets
