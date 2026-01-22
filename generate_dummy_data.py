@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime
 
-def generate_dummy_data(filepath='EURUSD_Hourly.csv'):
+def generate_dummy_data(filepath='SPY_Hourly.csv'):
     # Generate dates from 2020 to 2025
     start_date = datetime.datetime(2020, 1, 1)
     end_date = datetime.datetime(2025, 12, 31)
@@ -12,13 +12,13 @@ def generate_dummy_data(filepath='EURUSD_Hourly.csv'):
     n_samples = len(dates)
     
     # Random walk for price
-    # Start at 1.1000
-    price = 1.1000
+    # Start at 450.00 (typical SPY price)
+    price = 450.00
     prices = []
     
     # Simple simulation: Geometric Brownian Motion-ish
-    # Volatility per hour
-    volatility = 0.0005 
+    # Volatility per hour (stock percentage movements)
+    volatility = 0.01 
     
     current_price = price
     
@@ -52,7 +52,7 @@ def generate_dummy_data(filepath='EURUSD_Hourly.csv'):
         high_data.append(high_p)
         low_data.append(low_p)
         close_data.append(close_p)
-        volume_data.append(np.random.randint(100, 10000))
+        volume_data.append(np.random.randint(100000, 10000000))
         
         current_price = close_p
         

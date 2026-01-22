@@ -6,13 +6,13 @@ import pandas as pd
 class ForexTradingEnvironment(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, df, window_size=30, initial_balance=10000.0, spread=0.0002):
+    def __init__(self, df, window_size=30, initial_balance=10000.0, spread=0.01):
         super(ForexTradingEnvironment, self).__init__()
 
         self.df = df
         self.window_size = window_size
         self.initial_balance = initial_balance
-        self.spread = spread # Spread in price (e.g., 2 pips = 0.0002)
+        self.spread = spread # Spread in price (e.g., $0.01 for stocks)
 
         # Actions: 
         # 0: Trade Decision (0=Hold, 1=Enter Trade)

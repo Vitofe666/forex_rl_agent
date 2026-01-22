@@ -1,6 +1,6 @@
-# Forex RL Agent
+# S&P 500 RL Trading Agent
 
-This project implements a Reinforcement Learning (RL) agent for Forex trading using `stable-baselines3`.
+This project implements a Reinforcement Learning (RL) agent for S&P 500 trading using `stable-baselines3`.
 
 ## Prerequisites
 
@@ -19,7 +19,7 @@ Ensure you have Python installed (3.8+ recommended).
 ### 1. Training the Agent
 
 To train the agent, run the `train_agent.py` script. This will:
--   Generate dummy data (`EURUSD_Hourly.csv`) if it doesn't exist.
+-   Generate dummy data (`SPY_Hourly.csv`) if it doesn't exist.
 -   Train a PPO model for 50,000 timesteps.
 -   Save the trained model to `ppo_forex_agent.zip`.
 
@@ -41,6 +41,6 @@ This will generate performance plots (e.g., `equity_curve.png`) and print the fi
 
 -   `train_agent.py`: Main script to train the model.
 -   `test_agent.py`: Script to evaluate the trained model.
--   `trading_environment.py`: Custom Gym environment for Forex trading.
+-   `trading_environment.py`: Custom Gym environment for S&P 500 trading.
 -   `indicators.py`: Helper functions for calculating technical indicators.
--   `generate_dummy_data.py`: Generates synthetic market data for testing.
+-   `generate_dummy_data.py`: Generates synthetic SPY market data for testing.

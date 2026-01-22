@@ -29,7 +29,7 @@ def add_indicators(df):
     df['SMA_20_Slope'] = df['SMA_20'].diff()
     return df
 
-def load_and_preprocess_data(filepath='EURUSD_Hourly.csv'):
+def load_and_preprocess_data(filepath='SPY_Hourly.csv'):
     try:
         df = pd.read_csv(filepath)
     except FileNotFoundError:
