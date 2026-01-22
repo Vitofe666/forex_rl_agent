@@ -52,7 +52,7 @@ def generate_dummy_data(filepath='SPY_Hourly.csv'):
         high_data.append(high_p)
         low_data.append(low_p)
         close_data.append(close_p)
-        volume_data.append(np.random.randint(1000000, 20000000))  # More realistic for SPY (1-20M per hour)
+        volume_data.append(np.random.randint(500000, 10000000))  # Realistic for SPY hourly volume
         
         current_price = close_p
         
