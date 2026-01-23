@@ -4,3 +4,5 @@ numpy<2.0.0
 stable-baselines3
 shimmy
 alpaca-py
+pytz
+ta
