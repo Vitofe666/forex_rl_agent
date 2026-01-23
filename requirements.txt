@@ -1,8 +1,16 @@
-pandas
-gymnasium
-numpy<2.0.0
-stable-baselines3
-shimmy
-alpaca-py
-pytz
-ta
+# Core ML/RL
+pandas>=1.5.0
+numpy>=1.23.0
+stable-baselines3>=2.0.0
+torch>=2.0.0
+
+# Alpaca Trading
+alpaca-py>=0.20.0
+pytz>=2023.3
+
+# Technical Indicators
+ta>=0.11.0
+
+# Additional utilities
+python-dateutil>=2.8.0
+gymnasium>=0.28.0
