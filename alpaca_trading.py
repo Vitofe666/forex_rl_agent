@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import numpy as np
+import pytz
 from stable_baselines3 import PPO
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest, TakeProfitRequest, StopLossRequest
