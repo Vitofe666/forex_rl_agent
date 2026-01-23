@@ -5,7 +5,6 @@ from stable_baselines3 import PPO
 from alpaca.trading.client import TradingClient
 from alpaca.trading.requests import MarketOrderRequest, TakeProfitRequest, StopLossRequest
 from alpaca.data.enums import DataFeed
-
 from alpaca.trading.enums import OrderSide, TimeInForce
 from alpaca.data.historical import StockHistoricalDataClient
 from alpaca.data.requests import StockBarsRequest
@@ -15,18 +14,17 @@ from config import API_KEY, API_SECRET, BASE_URL
 from indicators import add_indicators
 
 # Configuration
-SYMBOL = "SPY" # Adjusted for trained model
+SYMBOL = "SPY"
 MODEL_PATH = "ppo_forex_agent.zip"
 WINDOW_SIZE = 30
-QTY = 10 # Position size. SPY is ~$470, so 10 shares ~$4700.
+QTY = 10
 
 # Initialize Clients
-trading_client = TradingClient(API_KEY, API_SECRET, paper=True) # Default to Paper
+trading_client = TradingClient(API_KEY, API_SECRET, paper=True)
 data_client = StockHistoricalDataClient(API_KEY, API_SECRET)
 
-def get_latest_data(symbol, lookback_hours=200):
+def get_latest_data(symbol, lookback_hours=250):
     """Fetches enough historical data to calculate indicators."""
-    # Free Tier has 15-min delay. Request data up to 20 mins ago to be safe.
     end_time = datetime.now() - timedelta(minutes=20)
     start_time = end_time - timedelta(hours=lookback_hours)
     
@@ -35,7 +33,7 @@ def get_latest_data(symbol, lookback_hours=200):
         timeframe=TimeFrame.Hour,
         start=start_time,
         end=end_time,
-        feed=DataFeed.IEX # Use IEX feed explicitly
+        feed=DataFeed.IEX
     )
     
     bars = data_client.get_stock_bars(request_params)
@@ -56,8 +54,10 @@ def get_latest_data(symbol, lookback_hours=200):
     # Calculate Indicators
     df = add_indicators(df)
     
-    # Return last WINDOW_SIZE rows
-    return df.iloc[-WINDOW_SIZE:]
+    # Drop rows with NaN (critical for indicators like RSI which need warmup)
+    df = df.dropna()
+    
+    return df
 
 def execute_trade(action, current_price):
     """Executes trade based on agent action."""
@@ -71,7 +71,7 @@ def execute_trade(action, current_price):
     direction = OrderSide.BUY if direction_idx == 0 else OrderSide.SELL
     
     # SL/TP Options (from environment - percentages)
-    sl_options = [0.01, 0.02, 0.03] # 1%, 2%, 3%
+    sl_options = [0.01, 0.02, 0.03]
     tp_options = [0.01, 0.02, 0.03]
     
     sl_pct = sl_options[sl_idx]
@@ -86,10 +86,6 @@ def execute_trade(action, current_price):
         
     print(f"Agent Decision: ENTER {direction} @ {current_price}")
     print(f"SL: {sl_price:.5f}, TP: {tp_price:.5f}")
-    
-    # Submit Bracket Order
-    # Note: For strict Forex pairs on Alpaca, check if Bracket Orders are supported via API efficiently.
-    # Usually they are.
     
     order_data = MarketOrderRequest(
         symbol=SYMBOL,
@@ -118,33 +114,46 @@ def main():
             print("Checking Open Positions...")
             try:
                 positions = trading_client.get_all_positions()
-                # Check if we already have a position for this symbol
                 has_position = any(p.symbol == SYMBOL for p in positions)
                 
                 if has_position:
                     print(f"Position already open for {SYMBOL}. Agent waits for exit (SL/TP).")
-                    # Sleep and continue
                     time.sleep(3600)
                     continue
                     
             except Exception as e:
                 print(f"Error checking positions: {e}")
-                time.sleep(60) # Retry sooner on error
+                time.sleep(60)
                 continue
 
             print("Fetching Market Data...")
             try:
                 df = get_latest_data(SYMBOL)
-                print(f"Fetched {len(df)} rows.")
+                print(f"Fetched {len(df)} rows after cleaning.")
+                
+                # Check if we have enough data
                 if len(df) < WINDOW_SIZE:
-                    print("Not enough data to predict.")
+                    print(f"Not enough data for window. Need {WINDOW_SIZE}, got {len(df)}")
                     time.sleep(3600)
                     continue
-                    
-                # Prepare Observation
-                feature_cols = ['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'SMA_20', 'SMA_50', 'ATR', 'SMA_20_Slope']
-                obs = df[feature_cols].values.astype(np.float32)
                 
+                # Prepare Observation - FIXED
+                feature_cols = ['Open', 'High', 'Low', 'Close', 'Volume', 'RSI', 'SMA_20', 'SMA_50', 'ATR', 'SMA_20_Slope']
+                
+                # Get last WINDOW_SIZE rows for proper observation shape
+                obs = df[feature_cols].iloc[-WINDOW_SIZE:].values.astype(np.float32)
+                
+                # Final safety check for NaN/Inf values
+                if np.isnan(obs).any() or np.isinf(obs).any():
+                    print("Warning: Observation contains NaN or Inf values. Skipping this iteration.")
+                    print(f"NaN count: {np.isnan(obs).sum()}, Inf count: {np.isinf(obs).sum()}")
+                    time.sleep(3600)
+                    continue
+                
+                # Verify correct shape
+                print(f"Observation shape: {obs.shape}")  # Should be (30, 10)
+                
+                # Predict
                 action, _states = model.predict(obs, deterministic=True)
                 
                 # Get Current Price for Order logic
@@ -154,15 +163,19 @@ def main():
                 
             except Exception as e:
                 print(f"Error in trading loop: {e}")
+                import traceback
+                traceback.print_exc()
                 
             print("Sleeping for 1 hour...")
-            time.sleep(3600) # Wait 1 hour before next check
+            time.sleep(3600)
             
         except KeyboardInterrupt:
             print("Trading Loop Stopped by User.")
             break
         except Exception as e:
             print(f"Critical Error in Main Loop: {e}")
+            import traceback
+            traceback.print_exc()
             time.sleep(60)
 
 if __name__ == '__main__':
