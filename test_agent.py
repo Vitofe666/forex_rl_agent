@@ -31,7 +31,7 @@ def evaluate_agent(data_df, model, title="Equity Curve"):
 
 def test_agent():
     # Load Data
-    data_path = 'alpaca_data.csv'
+    data_path = 'SPY_Hourly.csv'
     df = load_and_preprocess_data(data_path)
     train_df, test_df = split_data(df)
     

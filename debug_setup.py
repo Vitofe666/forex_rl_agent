@@ -7,7 +7,7 @@ from trading_environment import ForexTradingEnvironment
 
 try:
     print("Imports successful")
-    df = load_and_preprocess_data('EURUSD_Hourly.csv')
+    df = load_and_preprocess_data('SPY_Hourly.csv')
     print(f"Data loaded: {len(df)}")
     env = ForexTradingEnvironment(df)
     obs, _ = env.reset()

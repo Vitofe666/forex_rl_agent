@@ -7,9 +7,9 @@ import os
 
 def train_agent():
     # Load Data
-    data_path = 'alpaca_data.csv'
+    data_path = 'SPY_Hourly.csv'
     if not os.path.exists(data_path):
-        print("Data not found, generating dummy data...")
+        print("Data not found, generating dummy SPY data...")
         from generate_dummy_data import generate_dummy_data
         generate_dummy_data(data_path)
 

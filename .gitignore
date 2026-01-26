@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Training artifacts
+*.zip
+*.png
+ppo_forex_tensorboard/
+
+# Data files
+*.csv
+
+# Logs
+*.log
+*.txt
+debug_log.txt
+error.log
